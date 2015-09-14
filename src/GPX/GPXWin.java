@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.security.Key;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
@@ -28,16 +29,24 @@ public class GPXWin extends JPanel implements ActionListener, KeyListener,
 	JButton startGame = new JButton("开始");
 	JButton stopGame = new JButton("结束");
 	Player player;
-	int speed=100;
-	EndLine endline=null;
+	int speed = 100;
+	EndLine endline = null;
 	// 游戏线程
 	Thread nThread;
 	Block block = new Block();
+	Enemy[] enemy = new Enemy[2];
 	BufferedImage gameover;
 	File gameover_file = new File("D:/pic/gameover.jpg");
-	boolean isBlock = false;
 
 	public GPXWin() {
+		// 初始化数据
+		initGameData();
+		// 初始化数据和事件
+		initWindow();
+
+	}
+
+	public void initGameData() {
 		this.roadLen = 200;
 		this.score = 0;
 		try {
@@ -47,6 +56,11 @@ public class GPXWin extends JPanel implements ActionListener, KeyListener,
 			e.printStackTrace();
 		}
 		player = new Player();
+		for (int i = 0; i < enemy.length; i++)
+			enemy[i] = new Enemy();
+	}
+
+	public void initWindow() {
 		this.add(startGame);
 		this.add(stopGame);
 		startGame.addActionListener(this);
@@ -59,37 +73,34 @@ public class GPXWin extends JPanel implements ActionListener, KeyListener,
 		super.paintComponent(g);
 		g.drawString("您的分数是:" + score, 30, 30);
 		roadLen -= 1;
-		if (roadLen == 0){
-			endline=new EndLine();
+
+		if (roadLen == 0) {
+			endline = new EndLine();
 			roadLen--;
 		}
-		if(!Check_Hit()){
+		if (!Check_Hit()) {
 			repaint();
 			g.drawImage(gameover, 200, 80, null);
 			return;
 		}
-		
+
 		g.drawRect(30, 80, 900, 600);
 		road.Draw(g, Road_Flag);
 		player.Draw(g);
-		if (!check_Block()) {
-			isBlock = true;
-			this.block = null;
-			this.block = new Block();
-			speed=300;
-		} else {
-			speed=100;
-			isBlock = false;
-			
-		}
+		drawEnemy(g);
 		block.Draw(g);
-		if(endline !=null){
+		if (endline != null) {
 			endline.Draw(g);
-			
+
 		}
-		
+
 		Check_Limit();
-		
+
+	}
+
+	void drawEnemy(Graphics g) {
+		for (int i = 0; i < enemy.length; i++)
+			enemy[i].Draw(g);
 	}
 
 	@Override
@@ -125,10 +136,7 @@ public class GPXWin extends JPanel implements ActionListener, KeyListener,
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == startGame) {
-			nThread = new Thread(this);
-			nThread.start();
-			this.requestFocus();
-			repaint();
+			gameStart();
 		}
 		if (e.getSource() == stopGame) {
 			System.exit(0);
@@ -141,6 +149,16 @@ public class GPXWin extends JPanel implements ActionListener, KeyListener,
 			this.block = null;
 			this.block = new Block();
 		}
+	}
+
+	public void gameStart() {
+		nThread = new Thread(this);
+		nThread.start();
+		new PaintThread().start();
+		new EnemyThread().start();
+
+		this.requestFocus();
+		repaint();
 	}
 
 	// 判定相撞
@@ -165,21 +183,23 @@ public class GPXWin extends JPanel implements ActionListener, KeyListener,
 		 * <enemy.getY()+120; if(left_up||right_up||left_down||right_down) {
 		 * nThread.stop(); enemy=null; player=null; road=null; return false; }
 		 */
-		if(endline==null)
+		if (endline == null)
 			return true;
-		if (endline.getY() > 550){
+		if (endline.getY() > 550) {
 			return false;
 		}
 		return true;
-			
+
 	}
 
-	private boolean check_Block() {
-		if (block.getY() > 500) {
+	private boolean check_Block(CarPlayer player) {
+		if (block.getY() >= player.getY() - 30) {
 			if (block.getX() + block.getRectWidth() < player.getX()
 					|| block.getX() > player.getX() + 55) {
 				return true;
 			} else {
+				this.block = null;
+				this.block = new Block();
 				return false;
 			}
 		}
@@ -191,24 +211,79 @@ public class GPXWin extends JPanel implements ActionListener, KeyListener,
 		while (true) {
 			this.score += 10;
 			try {
-				Thread.sleep(speed);
+				if (!check_Block(player)) {
+					player.setY(player.getY() + GameConstant.BLOCK_MOVE_DISTANT);
+					Thread.sleep(speed);
+				} else {
+					Thread.sleep(speed);
+					switch (Road_Flag) {
+					case 1:
+						Road_Flag = 2;
+						break;
+					case 2:
+						Road_Flag = 1;
+						break;
+					default:
+						Road_Flag = 1;
+					}
+				}
+
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			if (isBlock == true) {
-				repaint();
-				
-			} else {
-				switch (Road_Flag){
-				case 1:Road_Flag = 2;break;
-				case 2:Road_Flag=1;break;
-				default:Road_Flag=1;
+
+		}
+	}
+
+	public class PaintThread extends Thread {
+
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			while (true) {
+				try {
+					Thread.sleep(speed);
+					repaint();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 
-				repaint();
 			}
-			
+
+		}
+
+	}
+
+	public class EnemyThread extends Thread {
+		@Override
+		public void run() {
+			while (true) {
+				try {
+					for (int i = 0; i < enemy.length; i++) {
+						if (!check_Block(enemy[i])) {
+							enemy[i].setY(enemy[i].getY() + GameConstant.BLOCK_MOVE_DISTANT);
+						}
+					}
+					Thread.sleep(speed);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				// TODO Auto-generated method stub
+				for (int i = 0; i < enemy.length; i++) {
+					while (true) {
+						int distance = enemy[i].getX()
+								+ new Random().nextInt(30) - 15;
+						if( distance > 205 && distance < 795){
+							enemy[i].setX(distance);
+							break;
+						}
+					}
+
+				}
+			}
 		}
 	}
 }

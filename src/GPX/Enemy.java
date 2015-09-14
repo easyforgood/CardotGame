@@ -9,21 +9,8 @@ import java.util.Random;
 
 import javax.imageio.ImageIO;
 
-public class Enemy {
-   private int x;
-   public int getX() {
-	return x;
-}
-public void setX(int x) {
-	this.x = x;
-}
-private int y;
-   public int getY() {
-	return y;
-}
-public void setY(int y) {
-	this.y = y;
-}
+public class Enemy extends CarPlayer{
+  
 Random rdm_x=new Random();//敌人只需让x坐标为随机的
    Random rdm_car=new Random();//车的类型也是随机的
    //有四个敌人，随机产生
@@ -34,7 +21,7 @@ Random rdm_x=new Random();//敌人只需让x坐标为随机的
    private BufferedImage imgEnemy;
    public Enemy()
    {
-	   y=80;
+	   y=550;
 	   x=rdm_x.nextInt(500)+201;
 	   //随机产生一种车
 	   switch (rdm_car.nextInt(4)) 
@@ -74,6 +61,5 @@ Random rdm_x=new Random();//敌人只需让x坐标为随机的
    public void Draw(Graphics g)
    {
 	   g.drawImage(imgEnemy,x,this.y,null);
-	   y+=10;
    }
 }
