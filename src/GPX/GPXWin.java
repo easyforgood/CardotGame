@@ -34,10 +34,10 @@ public class GPXWin extends JPanel implements ActionListener, KeyListener,
 	// 游戏线程
 	Thread nThread;
 	Block block = new Block();
-	Enemy[] enemy = new Enemy[2];
+	Enemy[] enemy = new Enemy[GameConstant.ENEMY_COUNT];
 	BufferedImage gameover;
 	File gameover_file = new File("D:/pic/gameover.jpg");
-
+	String winner="玩家";
 	public GPXWin() {
 		// 初始化数据
 		initGameData();
@@ -46,6 +46,7 @@ public class GPXWin extends JPanel implements ActionListener, KeyListener,
 
 	}
 
+	//初始化游戏数据
 	public void initGameData() {
 		this.roadLen = 200;
 		this.score = 0;
@@ -59,7 +60,7 @@ public class GPXWin extends JPanel implements ActionListener, KeyListener,
 		for (int i = 0; i < enemy.length; i++)
 			enemy[i] = new Enemy();
 	}
-
+	//初始化显示面板
 	public void initWindow() {
 		this.add(startGame);
 		this.add(stopGame);
@@ -67,7 +68,8 @@ public class GPXWin extends JPanel implements ActionListener, KeyListener,
 		stopGame.addActionListener(this);
 		this.addKeyListener(this);
 	}
-
+	
+	//重绘回调
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -81,6 +83,8 @@ public class GPXWin extends JPanel implements ActionListener, KeyListener,
 		if (!Check_Hit()) {
 			repaint();
 			g.drawImage(gameover, 200, 80, null);
+			nThread.stop();
+			g.drawString("胜利的是" + winner , 30, 50);
 			return;
 		}
 
@@ -98,18 +102,29 @@ public class GPXWin extends JPanel implements ActionListener, KeyListener,
 
 	}
 
+	//初始化绘制敌人
 	void drawEnemy(Graphics g) {
 		for (int i = 0; i < enemy.length; i++)
 			enemy[i].Draw(g);
 	}
 
+	//按键事件
 	@Override
 	public void keyPressed(KeyEvent e) {
 		switch (e.getKeyCode()) {
-		/*
-		 * case KeyEvent.VK_UP: this.player.Move(0, -5); break; case
-		 * KeyEvent.VK_DOWN: this.player.Move(0, 5); break;
-		 */
+		
+		  case KeyEvent.VK_UP: 
+			  this.player.Move(0, -5); 
+			  for(int i=0;i<enemy.length;i++){
+				  enemy[i].Move(0, 5);
+			  }
+			  break;
+		  case KeyEvent.VK_DOWN:
+			  for(int i=0;i<enemy.length;i++){
+				  enemy[i].Move(0, -5);
+			  }
+			  this.player.Move(0, 5); break;
+		 
 		case KeyEvent.VK_LEFT:
 			this.player.Move(-5, 0);
 			break;
@@ -133,6 +148,7 @@ public class GPXWin extends JPanel implements ActionListener, KeyListener,
 
 	}
 
+	//按钮事件
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == startGame) {
@@ -151,6 +167,7 @@ public class GPXWin extends JPanel implements ActionListener, KeyListener,
 		}
 	}
 
+	//游戏开始的初始化
 	public void gameStart() {
 		nThread = new Thread(this);
 		nThread.start();
@@ -161,7 +178,7 @@ public class GPXWin extends JPanel implements ActionListener, KeyListener,
 		repaint();
 	}
 
-	// 判定相撞
+	// 判定终点是否到达
 	private boolean Check_Hit() {
 		// 四种情况判定
 		/*
@@ -185,14 +202,28 @@ public class GPXWin extends JPanel implements ActionListener, KeyListener,
 		 */
 		if (endline == null)
 			return true;
-		if (endline.getY() > 550) {
+		
+		int frontHeight=player.getY();
+		winner="玩家";
+		//获取最前面的车子y坐标
+		for(int i=0;i<enemy.length;i++){
+			int tempHeight=enemy[i].getY()<frontHeight?enemy[i].getY():frontHeight;
+			if (frontHeight !=tempHeight)
+				winner="敌人";
+			frontHeight=tempHeight;
+		}
+		if(endline.getY()>frontHeight){
+			
 			return false;
 		}
 		return true;
 
 	}
 
+	//检查碰撞
 	private boolean check_Block(CarPlayer player) {
+		if(block==null)
+			return true;
 		if (block.getY() >= player.getY() - 30) {
 			if (block.getX() + block.getRectWidth() < player.getX()
 					|| block.getX() > player.getX() + 55) {
@@ -206,6 +237,7 @@ public class GPXWin extends JPanel implements ActionListener, KeyListener,
 		return true;
 	}
 
+	//玩家运行的线程
 	@Override
 	public void run() {
 		while (true) {
@@ -236,6 +268,7 @@ public class GPXWin extends JPanel implements ActionListener, KeyListener,
 		}
 	}
 
+	//单独的绘制线程，每0，1秒重绘一次
 	public class PaintThread extends Thread {
 
 		@Override
@@ -256,12 +289,14 @@ public class GPXWin extends JPanel implements ActionListener, KeyListener,
 
 	}
 
+	//AI线程
 	public class EnemyThread extends Thread {
 		@Override
 		public void run() {
 			while (true) {
 				try {
 					for (int i = 0; i < enemy.length; i++) {
+						//碰撞检查
 						if (!check_Block(enemy[i])) {
 							enemy[i].setY(enemy[i].getY() + GameConstant.BLOCK_MOVE_DISTANT);
 						}
@@ -272,6 +307,7 @@ public class GPXWin extends JPanel implements ActionListener, KeyListener,
 					e.printStackTrace();
 				}
 				// TODO Auto-generated method stub
+				//随机移动
 				for (int i = 0; i < enemy.length; i++) {
 					while (true) {
 						int distance = enemy[i].getX()

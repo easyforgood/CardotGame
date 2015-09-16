@@ -62,4 +62,5 @@ Random rdm_x=new Random();//敌人只需让x坐标为随机的
    {
 	   g.drawImage(imgEnemy,x,this.y,null);
    }
+  
 }

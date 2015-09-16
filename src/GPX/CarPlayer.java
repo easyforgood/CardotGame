@@ -24,4 +24,9 @@ public class CarPlayer extends KeyAdapter{
 	public void setY(int y) {
 		this.y = y;
 	}
+	
+	public void Move(int x, int y) {
+		this.x += x;
+		this.y += y;
+	}
 }

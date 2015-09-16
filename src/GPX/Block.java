@@ -46,7 +46,7 @@ public class Block {
 	public void Draw(Graphics g) {
 		g.setColor(Color.WHITE);
 		g.fillRect(x, y, rectWidth, rectHeight);
-		y += 10;
+		y += 30;
 	}
 	public void DrawBlock(Graphics g){
 		g.setColor(Color.WHITE);
