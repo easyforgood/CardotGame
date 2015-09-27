@@ -17,6 +17,7 @@ public class Player extends CarPlayer {
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
+		a=0;
 		x = 400;
 		y = 550;
 	}

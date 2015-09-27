@@ -1,0 +1,23 @@
+09-16 20:40:08.421 13071 19631 E crash   : [E]com.tencent.mobileqq has crashed.
+
+09-16 20:40:08.421 13071 19631 E crash   : java.lang.NullPointerException
+
+09-16 20:40:08.421 13071 19631 E crash   : 	at com.tencent.mobileqq.activity.FavEmosmManageActivity$7.run(FavEmosmManageActivity.java:762)
+
+09-16 20:40:08.421 13071 19631 E crash   : 	at com.tencent.mobileqq.app.Job.run(Job.java:125)
+
+09-16 20:40:08.421 13071 19631 E crash   : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1112)
+
+09-16 20:40:08.421 13071 19631 E crash   : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:587)
+
+09-16 20:40:08.421 13071 19631 E crash   : 	at java.lang.Thread.run(Thread.java:841)
+
+09-16 20:40:08.421 13071 19631 D ReportLog: [E]uncaughtException java crash handler.
+
+09-16 20:40:08.421 13071 13071 D mqq     : [E]closeAllActivitys...BaseActivity count: 0
+
+09-16 20:40:08.421 13071 13071 D mqq     : [E]closeAllActivitys...AppActivity count: 0
+
+09-16 20:40:08.421 13071 13071 D mqq     : [E]closeAllActivitys...other Activity count: 0
+
+09-16 20:40:08.421 13071 13272 D FavroamingInfo: [W]remove emoticon.resid=885000268_0_0_0_BE39502CF7C4A2657A815F6BBDC65BC2_0_0

@@ -6,6 +6,18 @@ import java.awt.image.BufferedImage;
 public class CarPlayer extends KeyAdapter{
 	
 	protected int x;
+	//¼ÓËÙ¶È
+	protected int a;
+	
+	
+
+	public int getA() {
+		return a;
+	}
+
+	public void setA(int a) {
+		this.a = a;
+	}
 
 	public int getX() {
 		return x;

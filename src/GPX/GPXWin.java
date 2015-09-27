@@ -74,6 +74,8 @@ public class GPXWin extends JPanel implements ActionListener, KeyListener,
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		g.drawString("您的分数是:" + score, 30, 30);
+		g.drawString("当前时速为" + this.player.getA()*10 , 30, 70);
+
 		roadLen -= 1;
 
 		if (roadLen == 0) {
@@ -92,7 +94,7 @@ public class GPXWin extends JPanel implements ActionListener, KeyListener,
 		road.Draw(g, Road_Flag);
 		player.Draw(g);
 		drawEnemy(g);
-		block.Draw(g);
+		block.Draw(g,player.getA());
 		if (endline != null) {
 			endline.Draw(g);
 
@@ -113,17 +115,18 @@ public class GPXWin extends JPanel implements ActionListener, KeyListener,
 	public void keyPressed(KeyEvent e) {
 		switch (e.getKeyCode()) {
 		
+		  case KeyEvent.VK_KP_UP:
+			
 		  case KeyEvent.VK_UP: 
-			  this.player.Move(0, -5); 
-			  for(int i=0;i<enemy.length;i++){
-				  enemy[i].Move(0, 5);
-			  }
+			  //this.player.Move(0, -5); 
+			  if (this.player.getA()<12)
+				  this.player.setA(this.player.getA()+1);
 			  break;
 		  case KeyEvent.VK_DOWN:
-			  for(int i=0;i<enemy.length;i++){
-				  enemy[i].Move(0, -5);
-			  }
-			  this.player.Move(0, 5); break;
+			  if (this.player.getA()>0)
+				  this.player.setA(this.player.getA()-1);
+			  //this.player.Move(0, 5); 
+			  break;
 		 
 		case KeyEvent.VK_LEFT:
 			this.player.Move(-5, 0);
@@ -298,6 +301,7 @@ public class GPXWin extends JPanel implements ActionListener, KeyListener,
 					for (int i = 0; i < enemy.length; i++) {
 						//碰撞检查
 						if (!check_Block(enemy[i])) {
+							
 							enemy[i].setY(enemy[i].getY() + GameConstant.BLOCK_MOVE_DISTANT);
 						}
 					}
@@ -317,6 +321,11 @@ public class GPXWin extends JPanel implements ActionListener, KeyListener,
 							break;
 						}
 					}
+					
+					int a=enemy[i].getA()+new Random().nextInt(3)-1;
+					enemy[i].setA(a);
+					enemy[i].setY(enemy[i].getY()- (a-player.getA()));
+					
 
 				}
 			}

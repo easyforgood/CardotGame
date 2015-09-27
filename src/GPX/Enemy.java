@@ -22,6 +22,7 @@ Random rdm_x=new Random();//敌人只需让x坐标为随机的
    public Enemy()
    {
 	   y=550;
+	   a=7;
 	   x=rdm_x.nextInt(500)+201;
 	   //随机产生一种车
 	   switch (rdm_car.nextInt(4)) 

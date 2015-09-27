@@ -43,10 +43,10 @@ public class Block {
 		x = rdm_x.nextInt(500) + 201;
 	}
 
-	public void Draw(Graphics g) {
+	public void Draw(Graphics g,int a) {
 		g.setColor(Color.WHITE);
 		g.fillRect(x, y, rectWidth, rectHeight);
-		y += 30;
+		y += 10+a;
 	}
 	public void DrawBlock(Graphics g){
 		g.setColor(Color.WHITE);
